@@ -28,6 +28,10 @@ let controls = new THREE.OrbitControls(camera, renderer.domElement);
 
 
 const objects = [];
+const nodeColor = {
+    hex: 0x4DFF4D,
+    css: "#4DFF4D"
+}
 
 const addObject = (x, y, z, obj) => {
     obj.position.x = x;
@@ -40,8 +44,7 @@ const addObject = (x, y, z, obj) => {
     camera.lookAt(obj.position);
 }
 
-const addSolidGeometry = (x, y, z, geometry) => {
-    //creating a canvas
+const createCanvas = (text) => {
     const canvasHeight = 250, canvasWidth = 250;
     let canvas = document.createElement('canvas');
     {
@@ -49,23 +52,35 @@ const addSolidGeometry = (x, y, z, geometry) => {
         canvas.height = canvasHeight;
     }
 
+    const resizeCoef = 1.5;
+    const textSize = Math.min(canvas.width / text.length, 83);
+    console.log(textSize);
+
     let context = canvas.getContext('2d');
     {
-        context.font = "Bold 40px Arial";
-        context.fillStyle = "rgb(255, 0, 0)";
+        //background
+        context.fillStyle = nodeColor.css;
+        context.fillRect(0, 0, canvasWidth, canvasHeight);
+
+        //text
+        context.font = "Bold " + String(textSize * resizeCoef) + "px Arial";
+        context.fillStyle = "#FFFFFF";
         context.textAlign = "center";
         context.textBaseline = "middle";
-        context.fillText('Hello World', 125, 125);
+        context.fillText(text, canvasWidth / 2, canvasHeight / 2 + 5);
     }
 
     document.body.appendChild(canvas);
+    return canvas;
+}
 
+const addSolidGeometry = (x, y, z, geometry, text) => {
     //creating a texture
-    const texture = new THREE.Texture(canvas);
+    const texture = new THREE.Texture(createCanvas(text));
     texture.needsUpdate = true;
 
     //creating materials
-    const basicColor = 0x00ff00;
+    const basicColor = nodeColor.hex;
     const materials = [
         new THREE.MeshBasicMaterial({map: texture}),
         new THREE.MeshBasicMaterial({color: basicColor}),
@@ -74,18 +89,17 @@ const addSolidGeometry = (x, y, z, geometry) => {
         new THREE.MeshBasicMaterial({color: basicColor}),
         new THREE.MeshBasicMaterial({color: basicColor}),
     ];
-    //material.color.setRGB(Math.random(), Math.random(), Math.random());
 
     const mesh = new  THREE.Mesh(geometry, materials);
     addObject(x, y, z, mesh);
 }
 
-const addNode = (x, y) => {
+const addNode = (x, y, text = "Sample Text") => {
     const width = 1;
     const height = 1;
     const depth = 1;
 
-    addSolidGeometry(x, y, 0, new THREE.BoxGeometry(width, height, depth)); 
+    addSolidGeometry(x, y, 0, new THREE.BoxGeometry(width, height, depth), text); 
 }
 
 addNode(0, 0);
