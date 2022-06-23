@@ -2,25 +2,35 @@
 
 const canvas = document.getElementById('canvas');
 const renderer = new THREE.WebGLRenderer({canvas});
+
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
 
 const fov = 50;
 const aspect = canvas.offsetWidth / canvas.offsetHeight;
 const near = 0.1;
-const far = 100;
+const far = 1000;
 
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
 camera.position.z = 5;
+const setCameraPosition = (x, y, z) => {
+    camera.position.x = x;
+    camera.position.y = y;
+    camera.position.z = z;
+}
+
 
 const onWindowResize = () => {
     canvas.style.width = "100%";
+    canvas.style.height = "70%";
 
     camera.aspect = canvas.offsetWidth / canvas.offsetHeight;
     camera.updateProjectionMatrix();
 
     renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
 }
+
 window.addEventListener('resize', onWindowResize, false)
 
 const scene = new THREE.Scene();
@@ -42,8 +52,6 @@ const addObject = (x, y, z, obj) => {
 
     scene.add(obj);
     objects.push(obj);
-
-    camera.lookAt(obj.position);
 }
 
 const createCanvas = (text) => {
@@ -95,9 +103,9 @@ const addSolidGeometry = (x, y, z, geometry, text) => {
 }
 
 const addNode = (x, y, text = "Sample Text") => {
-    const width = 0.5;
-    const height = 0.5;
-    const depth = 0.5;
+    const width = 0.7;
+    const height = 0.7;
+    const depth = 0.7;
 
     addSolidGeometry(x, y, 0, new THREE.BoxGeometry(width, height, depth), text); 
 }
@@ -117,43 +125,52 @@ const addLine = (x1, y1, z1, x2, y2, z2) => {
     const line = new THREE.Line(geometry, material);
 
     scene.add(line);
+    objects.push(line);
 }
 
-const print_ = (root) => {
+const displayTree = (root) => {
     if (root != null) {
-        print_(root.left);
+        displayTree(root.left);
+
         addNode(root.x, root.y, root.key.toString());
-        if (root.parent != null) {
+
+        if (root.parent != null) 
             addLine(root.x, root.y, 0, root.parent.x, root.parent.y, 0);
-        }
-        print_(root.right);
+        
+        displayTree(root.right);
     }
 }
 
+const clearBuffer = () => {
+    objects.forEach(element => {
+        scene.remove(element);
+    });
 
-let A = new AVLTree();
-A.Insert(5);
-A.Insert(10);
-A.Insert(0);
-A.Insert(11);
-A.Insert(7);
-A.Insert(12);
-A.Insert(87);
-A.Insert(99);
-A.Insert(100);
-A.Insert(56);
-A.Insert(34);
+    objects.length = 0;
+}
 
-A.prepareForPrint();
-print_(A.root);
+const updateTree = (root) => {
+    clearBuffer();
+
+    let treeHeight = Tree.getHeight();
+    let defaultCameraZ = 5;
+
+    controls.target = new THREE.Vector3(0,  treeHeight / 2, 0);
+    camera.position.set(0, treeHeight / 2, Math.max(Math.pow(2, treeHeight - 1), 
+        defaultCameraZ))
+    
+    controls.update();
+
+    Tree.prepareForPrint();
+    displayTree(root);
+}
 
 
 function animate(time) {
 	time *= 0.001;
 
 	renderer.render(scene, camera);
-	controls.update();
-
+    
 	requestAnimationFrame(animate);
 }
 

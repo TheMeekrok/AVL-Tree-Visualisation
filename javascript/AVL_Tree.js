@@ -22,6 +22,10 @@ class AVLTree {
         return node.height;
     }
 
+    getHeight() {
+        return this.height(this.root);
+    }
+
     rightRotate(x) {
         let y = x.left;
         let T2 = y.right;
@@ -118,6 +122,7 @@ class AVLTree {
 
                 if (node.left != null) 
                     temp = node.left;
+                    
                 else if (node.right != null) {
                     temp = node.right;
                 }
@@ -126,15 +131,18 @@ class AVLTree {
                     temp = node;
                     node = null;
                 }
+
                 else
                     node = temp;
             }
+
             else {
                 let temp = this.minValueNode(node.right);
                 node.key = temp.key;
                 node.right = this.remove(node.right, temp.key)
             }
         }
+
         if (node == null) 
             return null;
 
@@ -144,13 +152,16 @@ class AVLTree {
 
         if (balance > 1 && this.getBalance(node.left) >= 0)
             return this.rightRotate(node);
+
         if (balance < -1 && this.getBalance(node.right) <= 0)
             return this.leftRotate(node);
+
         if (balance > 1 && this.getBalance(node.left) < 0)
         {
             node.left = this.leftRotate(node.left);
             return this.rightRotate(node);
         }
+
         if (balance < -1 && this.getBalance(node.right) > 0)
         {
             node.right = this.rightRotate(node.right);
@@ -165,10 +176,17 @@ class AVLTree {
     }
 
     levelPrint(node, level, currLevel) {
-        if (node == null)
+        if (node === null)
             return;
-        if (currLevel == 1) {
-            const nodeOffset = 1 / (Math.abs(node.y) + 1) * level;
+
+        if (currLevel === 1) {
+            if (level === 1) {
+                node.x = 0;
+                node.y = this.getHeight();
+                parent = null;
+            }
+
+            const nodeOffset = Math.pow(2, node.y - 2);
             if (node.left != null) {
                 node.left.x = node.x - nodeOffset;
                 node.left.y = node.y - 1;
@@ -182,6 +200,7 @@ class AVLTree {
                 node.right.parent = node;
             }
         }
+
         else if (currLevel > 1){
             this.levelPrint(node.left, level, currLevel - 1);
             this.levelPrint(node.right, level, currLevel - 1);
@@ -189,8 +208,11 @@ class AVLTree {
     }
 
     levelOrderPrint(node) {
+        if (node === null)
+            return;
+
         for (let i = 1; i < node.height; ++i) {
-            this.levelPrint(node, node.height - i, i);
+            this.levelPrint(node, i, i);
         }
     }
     

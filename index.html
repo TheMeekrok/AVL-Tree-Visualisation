@@ -11,14 +11,21 @@
     <script src="javascript/lib/three.js"></script>
     <script src="javascript/lib/OrbitControls.js"></script>
     <script src="javascript/lib/FontLoader.js"></script>
+
     <script src="javascript/AVL_Tree.js"></script>
 </head>
 <body>
     <div>
         <p id="mainText">AVL TREE</p>
         <canvas id="canvas"></canvas>
+        <form id="controls">
+            <input type="text" id="inputText"></input>
+            <input type="button" id="addButton" value="add"></input>
+            <input type="button" id="removeButton" value="remove"></input>
+        </form>
     </div>
 
-    <script src="javascript/handle.js"></script>
+    <script src="javascript/canvasHandle.js"></script>
+    <script src="javascript/formHandle.js"></script>
 </body>
 </html>
