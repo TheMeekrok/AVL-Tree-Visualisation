@@ -16,6 +16,8 @@ class AVLTree {
         this.root = null;
     }
 
+    nodes = [];
+
     height(node) {
         if (node == null)
             return 0;
@@ -95,6 +97,7 @@ class AVLTree {
 
     Insert(key) {
         this.root = this.insert(this.root, key);
+        this.prepareForPrint();
     }
 
     minValueNode(node) {
@@ -173,26 +176,30 @@ class AVLTree {
 
     Remove(key) {
         this.root = this.remove(this.root, key);
+        this.prepareForPrint();
     }
 
-    levelPrint(node, level, currLevel) {
+    level(node, level, currLevel) {
         if (node === null)
             return;
 
         if (currLevel === 1) {
-            if (level === 1) {
+
+            if (node === this.root) {
                 node.x = 0;
                 node.y = this.getHeight();
                 parent = null;
             }
 
             const nodeOffset = Math.pow(2, node.y - 2);
+
             if (node.left != null) {
                 node.left.x = node.x - nodeOffset;
                 node.left.y = node.y - 1;
 
                 node.left.parent = node;
             }
+
             if (node.right != null) {
                 node.right.x = node.x + nodeOffset;
                 node.right.y = node.y - 1;
@@ -202,23 +209,44 @@ class AVLTree {
         }
 
         else if (currLevel > 1){
-            this.levelPrint(node.left, level, currLevel - 1);
-            this.levelPrint(node.right, level, currLevel - 1);
+            this.level(node.left, level, currLevel - 1);
+            this.level(node.right, level, currLevel - 1);
         }
     }
 
-    levelOrderPrint(node) {
+    levelOrder(node) {
         if (node === null)
             return;
 
         for (let i = 1; i < node.height; ++i) {
-            this.levelPrint(node, i, i);
+            this.level(node, i, i);
         }
+    }
+
+    _prepareForPrint(node) {
+        if (node === null)
+            return;
+
+        this._prepareForPrint(node.left);
+
+        this.nodes.push(node);
+
+        this._prepareForPrint(node.right);
     }
     
     prepareForPrint() {
-        this.levelOrderPrint(this.root);
+        this.nodes = [];
+
+        this.levelOrder(this.root);
+        this._prepareForPrint(this.root);
+
+        if (this.nodes.length === 1) {
+            this.nodes[0].x = 0;
+            this.nodes[0].y = 0;
+            this.nodes[0].height = 0;
+            this.nodes[0].parent = null;
+        }
     }
 }
 
-
+export { AVLTree };
